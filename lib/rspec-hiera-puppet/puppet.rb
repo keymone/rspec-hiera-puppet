@@ -1,4 +1,5 @@
 require 'puppet'
+require 'hiera_puppet'
 
 class Puppet::Parser::Compiler
   alias_method :compile_unadorned, :compile
@@ -7,47 +8,23 @@ class Puppet::Parser::Compiler
     spec = Thread.current[:spec]
 
     if spec
-      register_function_hiera(spec)
-      register_function_hiera_array(spec)
-      register_function_hiera_hash(spec)
-      register_function_hiera_include(spec)
+      register_function(:hiera, :priority, :type => :rvalue)
+      register_function(:hiera_array, :array, :type => :rvalue)
+      register_function(:hiera_hash, :hash, :type => :rvalue)
+      register_function(:hiera_include, :array) do |value|
+        method = Puppet::Parser::Functions.function(:include)
+        send(method, value)
+      end
     end
 
     compile_unadorned
   end
 
-  def register_function_hiera(spec)
-    Puppet::Parser::Functions.newfunction(:hiera, :type => :rvalue) do |*args|
-      require 'hiera_puppet'
+  def register_function(name, resolution, options={})
+    Puppet::Parser::Functions.newfunction(name, options) do |*args|
       key, default, override = HieraPuppet.parse_args(args)
-      HieraPuppet.lookup(key, default, self, override, :priority)
-    end
-  end
-
-  def register_function_hiera_array(spec)
-    Puppet::Parser::Functions.newfunction(:hiera_array, :type => :rvalue) do |*args|
-      require 'hiera_puppet'
-      key, default, override = HieraPuppet.parse_args(args)
-      HieraPuppet.lookup(key, default, self, override, :array)
-    end
-  end
-
-  def register_function_hiera_hash(spec)
-    Puppet::Parser::Functions.newfunction(:hiera_hash, :type => :rvalue) do |*args|
-      require 'hiera_puppet'
-      key, default, override = HieraPuppet.parse_args(args)
-      HieraPuppet.lookup(key, default, self, override, :hash)
-    end
-  end
-
-  def register_function_hiera_include(spec)
-    Puppet::Parser::Functions.newfunction(:hiera_include) do |*args|
-      require 'hiera_puppet'
-      key, default, override = HieraPuppet.parse_args(args)
-      answer = HieraPuppet.lookup(key, default, self, override, :array)
-
-      method = Puppet::Parser::Functions.function(:include)
-      send(method, answer)
+      answer = HieraPuppet.lookup(key, default, self, override, resolution)
+      block_given? ? yield(answer) : answer
     end
   end
 end

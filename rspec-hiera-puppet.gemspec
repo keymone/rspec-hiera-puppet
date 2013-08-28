@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["amfranz@gmail.com"]
   gem.description   = %q{Hiera fixtures for rspec-puppet tests.}
   gem.summary       = %q{Hiera fixtures for rspec-puppet tests.}
-  gem.homepage      = "https://github.com/amfranz/rspec-hiera-puppet"
+  gem.homepage      = "https://github.com/keymone/rspec-hiera-puppet"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Rspec::Hiera::Puppet::VERSION
 
-  gem.add_dependency('puppet', '>= 3.0')
+  gem.add_dependency('puppet', '>= 2.6')
   gem.add_dependency('hiera', '>= 1.0')
   gem.add_dependency('hiera-puppet', '>= 1.0')
   gem.add_dependency('rspec')
