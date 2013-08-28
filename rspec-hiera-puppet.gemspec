@@ -17,7 +17,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency('puppet', '>= 2.6')
   gem.add_dependency('hiera', '>= 1.0')
-  gem.add_dependency('hiera-puppet', '>= 1.0')
   gem.add_dependency('rspec')
   gem.add_dependency('rspec-puppet')
 end
